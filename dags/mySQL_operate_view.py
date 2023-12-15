@@ -2,9 +2,12 @@ from datetime import datetime
 from airflow import DAG
 from airflow.providers.mysql.operators.mysql import MySqlOperator
 
+from modules.slack_notify import task_fail_slack_alert
+
 default_args = {
     "owner": "data eng team",
     "retries": 0,
+    "on_failure_callback": task_fail_slack_alert,
 }
 
 with DAG(
