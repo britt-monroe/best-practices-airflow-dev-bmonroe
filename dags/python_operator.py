@@ -9,13 +9,13 @@ with DAG(
         start_date=datetime(2023, 9, 25),
 ) as dag:
     @task(task_id="print_to_logs")
-    def print_context(ds=None, **kwargs):
+    def print_to_logs(ds=None, **kwargs):
         """Print the Airflow context and ds variable from the context."""
         print(kwargs)
         print(ds)
         return "Whatever you return gets printed in the logs"
 
-    print_context = print_context()
+    print_context = print_to_logs()
 
     @task(task_id="random_number")
     def random_number():
