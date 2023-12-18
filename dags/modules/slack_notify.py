@@ -1,9 +1,13 @@
-from airflow.hooks.base_hook import BaseHook
-from airflow.contrib.operators.slack_webhook_operator import SlackWebhookOperator
+"""Slack Notifications for Webhook for Job Failures"""
+from airflow.contrib.operators.slack_webhook_operator import (
+    SlackWebhookOperator,
+)
 from airflow.models.variable import Variable
 
+# Slack connection id for ngcp-dataeng-airflow-notifications
 SLACK_CONN_ID = "slack"
 ENV = Variable.get("airflow-env")
+
 
 def task_fail_slack_alert(context):
     """
@@ -16,7 +20,6 @@ def task_fail_slack_alert(context):
         None: Calls the SlackWebhookOperator execute method internally
 
     """
-    slack_webhook_token = BaseHook.get_connection(SLACK_CONN_ID).password
     slack_msg = """
             :red_circle: Task Failed.
             *Env*: {env} 
@@ -28,15 +31,14 @@ def task_fail_slack_alert(context):
         env=ENV,
         task=context.get("task_instance").task_id,
         dag=context.get("task_instance").dag_id,
-        ti=context.get("task_instance"),
+        # ti=context.get("task_instance"),
         exec_date=context.get("execution_date"),
         log_url=context.get("task_instance").log_url,
     )
 
     failed_alert = SlackWebhookOperator(
         task_id="slack_notify",
-        http_conn_id=SLACK_CONN_ID,
-        webhook_token=slack_webhook_token,
+        slack_webhook_conn_id=SLACK_CONN_ID,
         message=slack_msg,
         username="airflow",
     )
